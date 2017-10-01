@@ -5,7 +5,7 @@ from time import sleep
 from multiprocessing import Process
 import pyrebase
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 #from WilsonCare import test
 
 #initialize the gpio module
@@ -34,6 +34,7 @@ gpio.pullup(port.PA10, gpio.PULLUP) # Configurando Sensor geladeira (Precisa de 
 
 #multiprocessing
 def remedio():
+   tomar = ""
    while True:
       horanow = datetime.now().strftime("%H:%M")
       remedios = db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/").get()
@@ -45,14 +46,16 @@ def remedio():
          doses = db.child(pathD).get()
          intervalo = db.child(pathI).get()
          if(hora.val()==horanow):
-            tomar = lista.key()
-            if gpio.input(port.PG6):
-               pathHtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(tomar) + ("/horario")
-               pathDtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(tomar) + ("/doses")
-               hora = db.child(pathHtomar).get()
-               doses = db.child(pathDtomar).get()
-               db.child(pathHtomar).update(hora.val() + timedelta(hours=intervalo.val()))
-               db.child(pathDtomar).update(doses.val() - 1)
+            print "tomar remedio"
+            tomar = str(lista.key())
+         if gpio.input(port.PG6):
+            print "botao apertado"
+            pathHtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/horario")
+            pathDtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/doses")
+            hora = db.child(pathHtomar).get()
+            doses = db.child(pathDtomar).get()
+#            db.child(pathHtomar).update(hora.val() + timedelta(hours=intervalo.val()))
+#            db.child(pathDtomar).update(doses.val() - 1)
 
          sleep(1)
 
