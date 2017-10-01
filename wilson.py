@@ -35,20 +35,24 @@ gpio.pullup(port.PA10, gpio.PULLUP) # Configurando Sensor geladeira (Precisa de 
 #multiprocessing
 def remedio():
    while True:
-      hora = datetime.now().strftime("%H:%M")
-      cont = db.child("pacientes/qXnu2zpajCRrcFRYu6z6mdw5WGg1/remedios/-KuBp97o3hTMECGPM3T5/doses").get()
-      dado = db.child("pacientes/qXnu2zpajCRrcFRYu6z6mdw5WGg1/remedios/-KuBp97o3hTMECGPM3T5/horario").get()
-      intervalo = db.child("pacientes/qXnu2zpajCRrcFRYu6z6mdw5WGg1/remedios/-KuBp97o3hTMECGPM3T5/intervalo").get()
-      print "Contador: " + cont
-      while (cont!=0):
-         if (dado.val()== hora):
-            gpio.output(port.PA20, gpio.HIGH)
-            db.child("Data1").push("Tome Remedio")
-
+      horanow = datetime.now().strftime("%H:%M")
+      remedios = db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/").get()
+      for lista in remedios.each():
+         pathH = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/horario")
+         pathD = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/doses")
+         pathI = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/intervalo")
+         hora = db.child(pathH).get()
+         doses = db.child(pathD).get()
+         intervalo = db.child(pathI).get()
+         if(hora.val()==horanow):
+            tomar = lista.key()
             if gpio.input(port.PG6):
-               db.child("Data1").push("Remedio Tomado")
-               gpio.output(port.PA20, gpio.LOW)
-               cont -= 1
+               pathHtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(tomar) + ("/horario")
+               pathDtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(tomar) + ("/doses")
+               hora = db.child(pathHtomar).get()
+               doses = db.child(pathDtomar).get()
+               db.child(pathHtomar).update(hora.val() + timedelta(hours=intervalo.val()))
+               db.child(pathDtomar).update(doses.val() - 1)
 
          sleep(1)
 
