@@ -48,6 +48,7 @@ def remedio():
          intervalo = db.child(pathI).get()
          if(hora.val()==horanow):
             print "tomar remedio"
+            db.child("Alarme").set(1)
             tomar = str(lista.key())
          if gpio.input(port.PG6):
             print "botao apertado"
@@ -55,6 +56,7 @@ def remedio():
             pathDtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/doses")
             hora = db.child(pathHtomar).get()
             doses = db.child(pathDtomar).get()
+            db.child("Alarme").set(0)
 #            db.child(pathHtomar).update(hora.val() + timedelta(hours=intervalo.val()))
 #            db.child(pathDtomar).update(doses.val() - 1)
 
