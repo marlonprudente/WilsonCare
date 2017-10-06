@@ -22,14 +22,15 @@ auth = firebase.auth()
 user = auth.sign_in_with_email_and_password("marlonmateuspr@gmail.com", "wilson2")
 db = firebase.database()
 #setup the port (same as raspberry pi's gpio.setup() function)
-gpio.setcfg(port.PA7, gpio.OUTPUT) # LED ou Buzzer
-gpio.setcfg(port.PA8, gpio.INPUT) # Botao Emergencia
-gpio.setcfg(port.PA9, gpio.INPUT) # Sensor de Presenca
-gpio.setcfg(port.PA10,gpio.INPUT) # Geladeira
-gpio.setcfg(port.PG6, gpio.INPUT) # Botao remedio
-gpio.setcfg(port.PG7, gpio.OUTPUT) # LED remedio
+gpio.setcfg(port.PA0, gpio.OUTPUT) # LED EMERGENCIA
+gpio.setcfg(port.PA7, gpio.OUTPUT) # Buzzer
+gpio.setcfg(port.PA6, gpio.INPUT) # Botao Emergencia
+gpio.setcfg(port.PD14, gpio.INPUT) # Sensor de Presenca
+gpio.setcfg(port.PA8,gpio.INPUT) # Geladeira
+gpio.setcfg(port.PA3, gpio.INPUT) # Botao remedio
+gpio.setcfg(port.PA3, gpio.OUTPUT) # LED remedio
 
-gpio.pullup(port.PA10, gpio.PULLUP) # Configurando Sensor geladeira (Precisa de borda de subida, para ativar)
+gpio.pullup(port.PA8, gpio.PULLUP) # Configurando Sensor geladeira (Precisa de borda de subida, para ativar)
 
 
 #multiprocessing
@@ -64,7 +65,7 @@ def panico():
    while True:
       hora = datetime.now().strftime("%H:%M")
       data = datetime.now().strftime("%d/%m/%Y")
-      if gpio.input(port.PA8):
+      if gpio.input(port.PA6):
          panico = {"acionador": "Botao", "hora": hora, "data": data}
          db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/panico").push(panico)
          print panico
@@ -77,18 +78,18 @@ Process(target=panico).start()
 def main():
    data = datetime.now().strftime("%d/%m/%Y")
    hora = datetime.now().strftime("%H:%M")
-   if gpio.input(port.PA10) or gpio.input(port.PA9):
-      if gpio.input(port.PA10):
+   if gpio.input(port.PA8) or gpio.input(port.PD14):
+      if gpio.input(port.PA8):
          geladeira = {"sensor": "Geladeira", "hora": hora, "data": data}
          db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/sensores").push(geladeira)
          print geladeira
-      if gpio.input(port.PA9):
+      if gpio.input(port.PD14):
          quarto = {"sensor": "Quarto", "hora": hora, "data": data}
          db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/sensores").push(quarto)
          print quarto
-      gpio.output(port.PA7, gpio.HIGH)
+      gpio.output(port.PA0, gpio.HIGH)
       sleep(2)
-   gpio.output(port.PA7, gpio.LOW)
+   gpio.output(port.PA0, gpio.LOW)
 
 print "Iniciando Wilson...\n"
 #Atualizar horario
