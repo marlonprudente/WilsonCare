@@ -87,9 +87,9 @@ def main():
          quarto = {"sensor": "Quarto", "hora": hora, "data": data}
          db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/sensores").push(quarto)
          print quarto
-      gpio.output(port.PA0, gpio.HIGH)
+      gpio.output(port.PA7, gpio.HIGH)
       sleep(2)
-   gpio.output(port.PA0, gpio.LOW)
+   gpio.output(port.PA7, gpio.LOW)
 
 print "Iniciando Wilson...\n"
 #Atualizar horario
