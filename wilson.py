@@ -27,8 +27,8 @@ gpio.setcfg(port.PA7, gpio.OUTPUT) # Buzzer
 gpio.setcfg(port.PA6, gpio.INPUT) # Botao Emergencia
 gpio.setcfg(port.PD14, gpio.INPUT) # Sensor de Presenca
 gpio.setcfg(port.PA8,gpio.INPUT) # Geladeira
-gpio.setcfg(port.PA3, gpio.INPUT) # Botao remedio
-gpio.setcfg(port.PA3, gpio.OUTPUT) # LED remedio
+gpio.setcfg(port.PA1, gpio.INPUT) # Botao remedio
+#gpio.setcfg(port.PA3, gpio.OUTPUT) # LED remedio
 
 gpio.pullup(port.PA8, gpio.PULLUP) # Configurando Sensor geladeira (Precisa de borda de subida, para ativar)
 
@@ -46,18 +46,21 @@ def remedio():
          hora = db.child(pathH).get()
          doses = db.child(pathD).get()
          intervalo = db.child(pathI).get()
+         print hora.val() 
          if(hora.val()==horanow):
             print "tomar remedio"
             db.child("Alarme").set(1)
             tomar = str(lista.key())
-         if gpio.input(port.PG6):
+            gpio.output(port.PA7, gpio.HIGH)
+         if gpio.input(port.PA1):
             print "botao apertado"
+            gpio.output(port.PA7, gpio.LOW)
             pathHtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/horario")
             pathDtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/doses")
             hora = db.child(pathHtomar).get()
             doses = db.child(pathDtomar).get()
             db.child("Alarme").set(0)
-#            db.child(pathHtomar).update(hora.val() + timedelta(hours=intervalo.val()))
+            db.child(pathHtomar).set("13:00")
 #            db.child(pathDtomar).update(doses.val() - 1)
 
          sleep(1)
@@ -70,8 +73,10 @@ def panico():
       if gpio.input(port.PA6):
          panico = {"acionador": "Botao", "hora": hora, "data": data}
          db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/panico").push(panico)
+         gpio.output(port.PA0, gpio.HIGH)
          print panico
          sleep(1)
+      gpio.output(port.PA0, gpio.LOW)
 
 Process(target=remedio).start()
 Process(target=panico).start()
@@ -89,9 +94,9 @@ def main():
          quarto = {"sensor": "Quarto", "hora": hora, "data": data}
          db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/sensores").push(quarto)
          print quarto
-      gpio.output(port.PA7, gpio.HIGH)
+#      gpio.output(port.PA7, gpio.HIGH)
       sleep(2)
-   gpio.output(port.PA7, gpio.LOW)
+#   gpio.output(port.PA7, gpio.LOW)
 
 print "Iniciando Wilson...\n"
 #Atualizar horario
