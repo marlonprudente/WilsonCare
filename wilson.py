@@ -39,30 +39,32 @@ def remedio():
    while True:
       horanow = datetime.now().strftime("%H:%M")
       remedios = db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/").get()
-      for lista in remedios.each():
-         pathH = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/horario")
-         pathD = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/doses")
-         pathI = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/intervalo")
-         hora = db.child(pathH).get()
-         doses = db.child(pathD).get()
-         intervalo = db.child(pathI).get()
-         print hora.val() 
-         if(hora.val()==horanow):
-            print "tomar remedio"
-            db.child("Alarme").set(1)
-            tomar = str(lista.key())
-            gpio.output(port.PA7, gpio.HIGH)
-         if gpio.input(port.PA1):
-            print "botao apertado"
-            gpio.output(port.PA7, gpio.LOW)
-            pathHtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/horario")
-            pathDtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/doses")
-            hora = db.child(pathHtomar).get()
-            doses = db.child(pathDtomar).get()
-            db.child("Alarme").set(0)
-            db.child(pathHtomar).set("13:00")
+      if(remedios.val()!=0):
+         for lista in remedios.each():
+            pathH = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/horario")
+            pathD = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/doses")
+            pathI = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + str(lista.key()) + ("/intervalo")
+            hora = db.child(pathH).get()
+            doses = db.child(pathD).get()
+            intervalo = db.child(pathI).get()
+            print hora.val() 
+            if(hora.val()==horanow):
+               print "tomar remedio"
+               db.child("Alarme").set(1)
+               tomar = str(lista.key())
+               gpio.output(port.PA7, gpio.HIGH)
+            if gpio.input(port.PA1):
+               print "botao apertado"
+               gpio.output(port.PA7, gpio.LOW)
+               pathHtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/horario")
+               pathDtomar = ("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/") + tomar + ("/doses")
+               hora = db.child(pathHtomar).get()
+               doses = db.child(pathDtomar).get()
+               db.child("Alarme").set(0)
+               db.child(pathHtomar).set("13:00")
 #            db.child(pathDtomar).update(doses.val() - 1)
-
+      else:
+         print "Nao ha remedios!"
          sleep(1)
 
 #Thread de panico
