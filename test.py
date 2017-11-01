@@ -25,6 +25,7 @@ gpio.setcfg(port.PA8, gpio.INPUT)
 
 def main():
    data = datetime.now()
+   horanow = datetime.now().strftime("%H:%M")
    print data
    teste = db.child("pacientes/oZuB8VfohicfwT5unXiV7H8Mkpy2/remedios/").get()
    for lista in teste.each():
@@ -35,6 +36,17 @@ def main():
       doses = db.child(pathD).get()
       intervalo = db.child(pathI).get()
       print ("\nDoses: ") + doses.val() + ("/ Horario: ") + hora.val() + ("/ Intervalo: ") + intervalo.val()
+
+      if(int(hora.val().split(':')[0])>23):
+         db.child(pathH).set("00:00")
+         hora = db.child(pathH).get()
+
+      novahora = int(hora.val().split(':')[0]) + int(intervalo.val())
+      novahora = str(novahora) + ':' + hora.val().split(':')[1]
+      print ("Novo horario: ") + str(novahora)
+#      novahora = datetime.strptime(str(novahora) + ':' + hora.val().split(':')[1], "%H:%M")
+#      print ("Novo horario =>") + str(novahora)
+      db.child(pathH).set(str(novahora))
    sleep(2)
 #   print  data.strftime("%Y-%m-%d-%H-%M-%S")
  #  sleep(2)
